@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 .bolt
+
+# Environment variables
+.env
+.env.local
+.env.*.local

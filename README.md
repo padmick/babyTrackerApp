@@ -19,7 +19,7 @@ A secure, real-time family tracking application built with React, Cloudflare Wor
 - Node.js 18+
 - Cloudflare account
 - Firebase account
-- Wrangler CLI (`npm install -g wrangler`)
+- Wrangler CLI (`npm install wrangler --save-dev`) from the website https://developers.cloudflare.com/workers/wrangler/install-and-update/ 
 
 ## Setup
 
@@ -32,7 +32,11 @@ A secure, real-time family tracking application built with React, Cloudflare Wor
 3. Configure Firebase:
    - Create a new Firebase project
    - Enable Authentication with email/password
-   - Copy your Firebase config to `src/lib/firebase.ts`
+   - Create a `.env` file from `.env.example`:
+     ```bash
+     cp .env.example .env
+     ```
+   - Add your Firebase configuration values to `.env`
 
 4. Configure Cloudflare:
    - Create a Cloudflare account
