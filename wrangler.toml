@@ -1,0 +1,19 @@
+name = "family-tracking"
+main = "workers/index.ts"
+compatibility_date = "2024-02-20"
+
+[durable_objects]
+bindings = [
+  { name = "FAMILY_TRACKING", class_name = "FamilyTracking" }
+]
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "family-tracking-media"
+
+[vars]
+AUTH_EMAIL = "noreply@yourdomain.com"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["FamilyTracking"]
