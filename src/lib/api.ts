@@ -30,17 +30,17 @@ export async function fetchChildren(familyId: string) {
   return handleResponse(response);
 }
 
-export async function fetchChild(childId: string) {
-  await validateParams({ childId });
-  const response = await fetch(`${API_URL}/api/children/${childId}`, {
+export async function fetchChild(childId: string, familyId: string) {
+  await validateParams({ childId, familyId });
+  const response = await fetch(`${API_URL}/api/children/${childId}?familyId=${familyId}`, {
     headers: await getAuthHeaders(),
   });
   return handleResponse(response);
 }
 
-export async function fetchLatestEntries(childId: string) {
-  await validateParams({ childId });
-  const response = await fetch(`${API_URL}/api/children/${childId}/latest`, {
+export async function fetchLatestEntries(childId: string, familyId: string) {
+  await validateParams({ childId, familyId });
+  const response = await fetch(`${API_URL}/api/children/${childId}/latest?familyId=${familyId}`, {
     headers: await getAuthHeaders(),
   });
   return handleResponse(response);

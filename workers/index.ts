@@ -169,12 +169,23 @@ async function handleChildrenRoutes(request: Request, env: Env) {
       return new Response('Unauthorized', { status: 401, headers: corsHeaders });
     }
 
-    // Handle GET requests
+    // Handle GET requests for individual child
     if (request.method === 'GET' && pathParts.length >= 3) {
       const childId = pathParts[2];
       
-      // Use the childId to get the correct Durable Object instance
-      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(childId));
+      // First, get the familyId from the query parameters
+      const params = new URLSearchParams(url.search);
+      const familyId = params.get('familyId');
+      
+      if (!familyId) {
+        return new Response('Family ID is required', { 
+          status: 400, 
+          headers: corsHeaders 
+        });
+      }
+
+      // Use the familyId to get the correct Durable Object instance
+      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(familyId));
 
       // Handle /api/children/{childId}/latest
       if (pathParts.length === 4 && pathParts[3] === 'latest') {
