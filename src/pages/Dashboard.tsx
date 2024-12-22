@@ -9,7 +9,11 @@ export default function Dashboard() {
   const { user } = useAuth();
   const { data: children, isLoading } = useQuery({
     queryKey: ['children', user?.families?.[0]],
-    queryFn: () => fetchChildren(user?.families?.[0] || ''),
+    queryFn: async () => {
+      const result = await fetchChildren(user?.families?.[0] || '');
+      console.log('Fetched children:', result);
+      return result;
+    },
     enabled: !!user?.families?.[0],
   });
 
