@@ -190,9 +190,16 @@ async function handleChildrenRoutes(request: Request, env: Env) {
         }
       }));
 
-      return new Response(await response.text(), {
+      // Add logging to debug the response
+      const responseData = await response.text();
+      console.log('Children response:', responseData);
+
+      return new Response(responseData, {
         status: response.status,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { 
+          ...corsHeaders, 
+          'Content-Type': 'application/json' 
+        }
       });
     }
 
