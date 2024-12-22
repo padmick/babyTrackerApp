@@ -16,6 +16,7 @@ import Settings from './pages/Settings';
 import Medications from './pages/Medications';
 import EmergencyContacts from './pages/EmergencyContacts';
 import NotFound from './pages/NotFound';
+import { Toaster } from 'react-hot-toast';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,7 +56,7 @@ function App() {
           </Route>
         </Routes>
         <Toaster position="top-right" />
-      </BrowserRouter>
+      </Router>
     </QueryClientProvider>
   );
 }

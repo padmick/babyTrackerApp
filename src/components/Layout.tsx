@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { Home, Baby, Coffee, Moon, Book, CheckSquare } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import Sidebar from './Sidebar';
 
 export default function Layout() {
   const { user } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: Home },
