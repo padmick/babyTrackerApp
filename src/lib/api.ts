@@ -77,11 +77,7 @@ async function getAuthHeaders() {
   };
 }
 
-export async function createChild(familyId: string, child: {
-  name: string;
-  dateOfBirth: string;
-  photoUrl?: string;
-}) {
+export async function createChild(familyId: string, child: { name: string; dateOfBirth: string; photoUrl?: string }) {
   await validateParams({ familyId });
   const response = await fetch(`${API_URL}/api/children`, {
     method: 'POST',

@@ -162,60 +162,17 @@ async function handleUserRoutes(request: Request, env: Env) {
 async function handleChildrenRoutes(request: Request, env: Env) {
   try {
     const url = new URL(request.url);
-    const user = await verifyFirebaseToken(
-      request.headers.get('Authorization')?.replace('Bearer ', ''),
-      env
-    );
-    
+    const user = await verifyFirebaseToken(request.headers.get('Authorization')?.replace('Bearer ', ''), env);
+
     if (!user) {
-      return new Response('Unauthorized', { 
-        status: 401,
-        headers: corsHeaders,
-      });
-    }
-
-    if (request.method === 'GET') {
-      const familyId = url.searchParams.get('familyId');
-      if (!familyId) {
-        return new Response('Missing familyId', { 
-          status: 400,
-          headers: corsHeaders 
-        });
-      }
-
-      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(familyId));
-      const response = await familyObject.fetch(new Request('https://dummy-url/children', {
-        headers: {
-          'X-User-ID': user.localId,
-        }
-      }));
-
-      // Add stats to each child
-      const children = await response.json();
-      const childrenWithStats = await Promise.all(children.map(async (child: any) => {
-        const stats = await familyObject.fetch(new Request(`https://dummy-url/children/${child.id}/stats`));
-        return {
-          ...child,
-          stats: await stats.json()
-        };
-      }));
-
-      return new Response(JSON.stringify(childrenWithStats), {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
-      });
+      return new Response('Unauthorized', { status: 401, headers: corsHeaders });
     }
 
     if (request.method === 'POST') {
       const data = await request.json();
       const { familyId, ...childData } = data;
-      
-      // Get the family Durable Object
+
       const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(familyId));
-      
-      // Add child to the family
       const response = await familyObject.fetch(new Request('https://dummy-url/children', {
         method: 'POST',
         headers: {
@@ -230,30 +187,18 @@ async function handleChildrenRoutes(request: Request, env: Env) {
       }));
 
       if (!response.ok) {
-        return new Response('Failed to create child', { 
-          status: 500,
-          headers: corsHeaders 
-        });
+        return new Response('Failed to create child', { status: 500, headers: corsHeaders });
       }
 
       return new Response(await response.text(), {
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    return new Response('Method not allowed', { 
-      status: 405,
-      headers: corsHeaders 
-    });
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   } catch (error) {
     console.error('Children route error:', error);
-    return new Response(`Internal Server Error: ${error.message}`, { 
-      status: 500,
-      headers: corsHeaders 
-    });
+    return new Response(`Internal Server Error: ${error.message}`, { status: 500, headers: corsHeaders });
   }
 }
 
