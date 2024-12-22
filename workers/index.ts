@@ -169,6 +169,41 @@ async function handleChildrenRoutes(request: Request, env: Env) {
       return new Response('Unauthorized', { status: 401, headers: corsHeaders });
     }
 
+    // Handle GET requests
+    if (request.method === 'GET' && pathParts.length >= 3) {
+      const childId = pathParts[2];
+      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(childId));
+
+      // Handle /api/children/{childId}/latest
+      if (pathParts.length === 4 && pathParts[3] === 'latest') {
+        const response = await familyObject.fetch(new Request(`https://dummy-url/children/${childId}/latest`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-User-ID': user.localId,
+          }
+        }));
+        return new Response(await response.text(), {
+          status: response.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+
+      // Handle /api/children/{childId}
+      const response = await familyObject.fetch(new Request(`https://dummy-url/children/${childId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': user.localId,
+        }
+      }));
+      return new Response(await response.text(), {
+        status: response.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Handle POST request (existing code)
     if (request.method === 'POST') {
       const data = await request.json();
       const { familyId, ...childData } = data;
@@ -203,14 +238,10 @@ async function handleChildrenRoutes(request: Request, env: Env) {
       });
     }
 
-    // Handle other methods
-    return new Response('Method not allowed', { 
-      status: 405, 
-      headers: corsHeaders 
-    });
+    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
   } catch (error) {
     console.error('Error in handleChildrenRoutes:', error);
-    return new Response('Internal Server Error', { 
+    return new Response(`Internal Server Error: ${error.message}`, { 
       status: 500, 
       headers: corsHeaders 
     });
