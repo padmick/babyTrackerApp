@@ -169,6 +169,33 @@ async function handleChildrenRoutes(request: Request, env: Env) {
       return new Response('Unauthorized', { status: 401, headers: corsHeaders });
     }
 
+    // Handle GET request for all children
+    if (request.method === 'GET' && pathParts.length === 2) {
+      const params = new URLSearchParams(url.search);
+      const familyId = params.get('familyId');
+      
+      if (!familyId) {
+        return new Response('Family ID is required', { 
+          status: 400, 
+          headers: corsHeaders 
+        });
+      }
+
+      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(familyId));
+      const response = await familyObject.fetch(new Request('https://dummy-url/children', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': user.localId,
+        }
+      }));
+
+      return new Response(await response.text(), {
+        status: response.status,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     // Handle GET requests for individual child
     if (request.method === 'GET' && pathParts.length >= 3) {
       const childId = pathParts[2];

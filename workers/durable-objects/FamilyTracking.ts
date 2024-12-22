@@ -36,16 +36,23 @@ export class FamilyTracking {
         return new Response('Method Not Allowed', { status: 405 });
 
       case 'children':
-        if (request.method === 'GET' && pathParts.length === 2) {
-          const childId = pathParts[1];
-          console.log('Fetching child with ID:', childId);
-          const child = this.family.children.find(child => child.id === childId);
-          if (child) {
-            console.log('Child found:', child);
-            return new Response(JSON.stringify(child));
+        if (request.method === 'GET') {
+          if (pathParts.length === 1) {
+            // Return all children
+            console.log('Returning all children:', this.family.children);
+            return new Response(JSON.stringify(this.family.children));
+          } else if (pathParts.length === 2) {
+            // Return specific child
+            const childId = pathParts[1];
+            console.log('Fetching child with ID:', childId);
+            const child = this.family.children.find(child => child.id === childId);
+            if (child) {
+              console.log('Child found:', child);
+              return new Response(JSON.stringify(child));
+            }
+            console.error('Child not found:', childId);
+            return new Response('Child not found', { status: 404 });
           }
-          console.error('Child not found:', childId);
-          return new Response('Child not found', { status: 404 });
         } else if (request.method === 'POST') {
           const data = await request.json();
           console.log('Adding new child:', data);
