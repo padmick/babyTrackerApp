@@ -18,8 +18,10 @@ export class FamilyTracking {
     };
 
     const url = new URL(request.url);
-    switch (url.pathname) {
-      case '/members':
+    const pathParts = url.pathname.split('/').filter(Boolean);
+
+    switch (pathParts[0]) {
+      case 'members':
         if (request.method === 'GET') {
           return new Response(JSON.stringify(this.family.members));
         } else if (request.method === 'POST') {
@@ -30,18 +32,30 @@ export class FamilyTracking {
         }
         return new Response('Method Not Allowed', { status: 405 });
 
-      case '/children':
-        if (request.method === 'GET') {
-          return new Response(JSON.stringify(this.family.children));
+      case 'children':
+        if (request.method === 'GET' && pathParts.length === 2) {
+          const childId = pathParts[1];
+          const child = this.family.children.find(child => child.id === childId);
+          if (child) {
+            return new Response(JSON.stringify(child));
+          }
+          return new Response('Child not found', { status: 404 });
         } else if (request.method === 'POST') {
           const data = await request.json();
           this.family.children.push(data);
           await this.state.storage.put('family', this.family);
           return new Response(JSON.stringify(data), { status: 201 });
+        } else if (request.method === 'GET' && pathParts.length === 3 && pathParts[2] === 'latest') {
+          const childId = pathParts[1];
+          const latestEntries = {
+            feeding: this.family.children.find(child => child.id === childId)?.feedingEntries?.[0],
+            journal: this.family.children.find(child => child.id === childId)?.journalEntries?.[0],
+          };
+          return new Response(JSON.stringify(latestEntries));
         }
         return new Response('Method Not Allowed', { status: 405 });
 
-      case '/tasks':
+      case 'tasks':
         if (request.method === 'GET') {
           return new Response(JSON.stringify(this.family.tasks));
         } else if (request.method === 'POST') {

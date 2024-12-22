@@ -169,6 +169,9 @@ async function handleChildrenRoutes(request: Request, env: Env) {
       return new Response('Unauthorized', { status: 401, headers: corsHeaders });
     }
 
+    const pathParts = url.pathname.split('/').filter(Boolean);
+    const childId = pathParts[2];
+
     if (request.method === 'POST') {
       const data = await request.json();
       const { familyId, ...childData } = data;
@@ -191,6 +194,44 @@ async function handleChildrenRoutes(request: Request, env: Env) {
         const responseText = await response.text();
         console.error('Failed to create child:', response.status, responseText);
         return new Response(`Failed to create child: ${responseText}`, { status: 500, headers: corsHeaders });
+      }
+
+      return new Response(await response.text(), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } else if (request.method === 'GET' && pathParts.length === 3) {
+      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(childId));
+      const response = await familyObject.fetch(new Request(`https://dummy-url/children/${childId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': user.localId,
+        }
+      }));
+
+      if (!response.ok) {
+        const responseText = await response.text();
+        console.error('Failed to fetch child:', response.status, responseText);
+        return new Response(`Failed to fetch child: ${responseText}`, { status: 500, headers: corsHeaders });
+      }
+
+      return new Response(await response.text(), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } else if (request.method === 'GET' && pathParts.length === 4 && pathParts[3] === 'latest') {
+      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(childId));
+      const response = await familyObject.fetch(new Request(`https://dummy-url/children/${childId}/latest`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-ID': user.localId,
+        }
+      }));
+
+      if (!response.ok) {
+        const responseText = await response.text();
+        console.error('Failed to fetch latest entries:', response.status, responseText);
+        return new Response(`Failed to fetch latest entries: ${responseText}`, { status: 500, headers: corsHeaders });
       }
 
       return new Response(await response.text(), {
