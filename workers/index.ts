@@ -172,7 +172,12 @@ async function handleChildrenRoutes(request: Request, env: Env) {
     // Handle GET requests
     if (request.method === 'GET' && pathParts.length >= 3) {
       const childId = pathParts[2];
-      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(childId));
+      // Get the child's data first to find its familyId
+      const data = await request.json();
+      const { familyId } = data;
+      
+      // Use the familyId to get the correct Durable Object instance
+      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(familyId));
 
       // Handle /api/children/{childId}/latest
       if (pathParts.length === 4 && pathParts[3] === 'latest') {
@@ -197,13 +202,14 @@ async function handleChildrenRoutes(request: Request, env: Env) {
           'X-User-ID': user.localId,
         }
       }));
+      console.log('Child fetch response:', await response.clone().text());
       return new Response(await response.text(), {
         status: response.status,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    // Handle POST request (existing code)
+    // Handle POST request
     if (request.method === 'POST') {
       const data = await request.json();
       const { familyId, ...childData } = data;
@@ -231,10 +237,7 @@ async function handleChildrenRoutes(request: Request, env: Env) {
 
       return new Response(responseData, {
         status: response.status,
-        headers: {
-          ...corsHeaders,
-          'Content-Type': 'application/json'
-        }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 

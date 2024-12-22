@@ -11,10 +11,7 @@ export class FamilyTracking {
 
   async fetch(request: Request) {
     // Load state on every request
-    const storedFamily = await this.state.storage.get('family');
-    console.log('Loaded family state:', storedFamily);
-    
-    this.family = storedFamily || {
+    this.family = await this.state.storage.get('family') || {
       members: [],
       children: [],
       tasks: []
@@ -22,6 +19,9 @@ export class FamilyTracking {
 
     const url = new URL(request.url);
     const pathParts = url.pathname.split('/').filter(Boolean);
+
+    console.log('Request path:', url.pathname);
+    console.log('Current family state:', JSON.stringify(this.family));
 
     switch (pathParts[0]) {
       case 'members':
@@ -39,7 +39,6 @@ export class FamilyTracking {
         if (request.method === 'GET' && pathParts.length === 2) {
           const childId = pathParts[1];
           console.log('Fetching child with ID:', childId);
-          console.log('Current children:', JSON.stringify(this.family.children));
           const child = this.family.children.find(child => child.id === childId);
           if (child) {
             console.log('Child found:', child);
@@ -52,7 +51,6 @@ export class FamilyTracking {
           console.log('Adding new child:', data);
           this.family.children.push(data);
           await this.state.storage.put('family', this.family);
-          console.log('Child added successfully:', data);
           console.log('Updated family state:', JSON.stringify(this.family));
           return new Response(JSON.stringify(data), { status: 201 });
         } else if (request.method === 'GET' && pathParts.length === 3 && pathParts[2] === 'latest') {
