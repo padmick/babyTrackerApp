@@ -35,15 +35,20 @@ export class FamilyTracking {
       case 'children':
         if (request.method === 'GET' && pathParts.length === 2) {
           const childId = pathParts[1];
+          console.log('Fetching child with ID:', childId);
           const child = this.family.children.find(child => child.id === childId);
           if (child) {
+            console.log('Child found:', child);
             return new Response(JSON.stringify(child));
           }
+          console.error('Child not found:', childId);
           return new Response('Child not found', { status: 404 });
         } else if (request.method === 'POST') {
           const data = await request.json();
+          console.log('Adding new child:', data);
           this.family.children.push(data);
           await this.state.storage.put('family', this.family);
+          console.log('Child added successfully:', data);
           return new Response(JSON.stringify(data), { status: 201 });
         } else if (request.method === 'GET' && pathParts.length === 3 && pathParts[2] === 'latest') {
           const childId = pathParts[1];
