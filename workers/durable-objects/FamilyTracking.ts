@@ -11,7 +11,10 @@ export class FamilyTracking {
 
   async fetch(request: Request) {
     // Load state on every request
-    this.family = await this.state.storage.get('family') || {
+    const storedFamily = await this.state.storage.get('family');
+    console.log('Loaded family state:', storedFamily);
+    
+    this.family = storedFamily || {
       members: [],
       children: [],
       tasks: []
@@ -50,7 +53,7 @@ export class FamilyTracking {
           this.family.children.push(data);
           await this.state.storage.put('family', this.family);
           console.log('Child added successfully:', data);
-          console.log('Updated children:', JSON.stringify(this.family.children));
+          console.log('Updated family state:', JSON.stringify(this.family));
           return new Response(JSON.stringify(data), { status: 201 });
         } else if (request.method === 'GET' && pathParts.length === 3 && pathParts[2] === 'latest') {
           const childId = pathParts[1];
