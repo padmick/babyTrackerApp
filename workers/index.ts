@@ -165,6 +165,7 @@ async function handleChildrenRoutes(request: Request, env: Env) {
     const user = await verifyFirebaseToken(request.headers.get('Authorization')?.replace('Bearer ', ''), env);
 
     if (!user) {
+      console.error('Unauthorized request:', request);
       return new Response('Unauthorized', { status: 401, headers: corsHeaders });
     }
 
@@ -187,7 +188,9 @@ async function handleChildrenRoutes(request: Request, env: Env) {
       }));
 
       if (!response.ok) {
-        return new Response('Failed to create child', { status: 500, headers: corsHeaders });
+        const responseText = await response.text();
+        console.error('Failed to create child:', response.status, responseText);
+        return new Response(`Failed to create child: ${responseText}`, { status: 500, headers: corsHeaders });
       }
 
       return new Response(await response.text(), {
