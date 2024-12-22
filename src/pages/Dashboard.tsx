@@ -8,13 +8,29 @@ import { useAuth } from '../hooks/useAuth';
 export default function Dashboard() {
   const { user } = useAuth();
   const { data: children, isLoading } = useQuery({
-    queryKey: ['children', user?.id],
-    queryFn: () => fetchChildren(user?.families[0] || ''),
-    enabled: !!user,
+    queryKey: ['children', user?.families?.[0]],
+    queryFn: () => fetchChildren(user?.families?.[0] || ''),
+    enabled: !!user?.families?.[0],
   });
 
   if (isLoading) {
     return <div>Loading...</div>;
+  }
+
+  if (!children?.length) {
+    return (
+      <div className="text-center">
+        <h1 className="text-2xl font-semibold text-gray-900 mb-4">Welcome to Family Tracker</h1>
+        <p className="text-gray-500 mb-6">Get started by adding your first child</p>
+        <Link
+          to="/child/new"
+          className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Add Child
+        </Link>
+      </div>
+    );
   }
 
   const totalEntries = children?.reduce((sum, child) => 
