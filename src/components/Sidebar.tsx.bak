@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Baby, Moon, Book, CheckSquare, Settings, Phone, Pill, X } from 'lucide-react';
+import { Baby, Moon, Book, CheckSquare, X } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface Props {
@@ -17,9 +17,6 @@ export default function Sidebar({ open, onClose }: Props) {
     { name: 'Sleep Tracking', href: '/sleep', icon: Moon },
     { name: 'Journal', href: '/journal', icon: Book },
     { name: 'Tasks', href: '/tasks', icon: CheckSquare },
-    { name: 'Medications', href: '/medications', icon: Pill },
-    { name: 'Emergency Contacts', href: '/contacts', icon: Phone },
-    { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
   return (
