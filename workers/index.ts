@@ -162,15 +162,12 @@ async function handleUserRoutes(request: Request, env: Env) {
 async function handleChildrenRoutes(request: Request, env: Env) {
   try {
     const url = new URL(request.url);
+    const pathParts = url.pathname.split('/').filter(Boolean);
     const user = await verifyFirebaseToken(request.headers.get('Authorization')?.replace('Bearer ', ''), env);
 
     if (!user) {
-      console.error('Unauthorized request:', request);
       return new Response('Unauthorized', { status: 401, headers: corsHeaders });
     }
-
-    const pathParts = url.pathname.split('/').filter(Boolean);
-    const childId = pathParts[2];
 
     if (request.method === 'POST') {
       const data = await request.json();
@@ -194,52 +191,29 @@ async function handleChildrenRoutes(request: Request, env: Env) {
         })
       }));
 
-      console.log('Child creation response:', await response.clone().text());
-      // ... rest of the code
-    } else if (request.method === 'GET' && pathParts.length === 3) {
-      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(childId));
-      const response = await familyObject.fetch(new Request(`https://dummy-url/children/${childId}`, {
-        method: 'GET',
+      const responseData = await response.text();
+      console.log('Child creation response:', responseData);
+
+      return new Response(responseData, {
+        status: response.status,
         headers: {
-          'Content-Type': 'application/json',
-          'X-User-ID': user.localId,
+          ...corsHeaders,
+          'Content-Type': 'application/json'
         }
-      }));
-
-      if (!response.ok) {
-        const responseText = await response.text();
-        console.error('Failed to fetch child:', response.status, responseText);
-        return new Response(`Failed to fetch child: ${responseText}`, { status: 500, headers: corsHeaders });
-      }
-
-      return new Response(await response.text(), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    } else if (request.method === 'GET' && pathParts.length === 4 && pathParts[3] === 'latest') {
-      const familyObject = env.FAMILY_TRACKING.get(env.FAMILY_TRACKING.idFromString(childId));
-      const response = await familyObject.fetch(new Request(`https://dummy-url/children/${childId}/latest`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-ID': user.localId,
-        }
-      }));
-
-      if (!response.ok) {
-        const responseText = await response.text();
-        console.error('Failed to fetch latest entries:', response.status, responseText);
-        return new Response(`Failed to fetch latest entries: ${responseText}`, { status: 500, headers: corsHeaders });
-      }
-
-      return new Response(await response.text(), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    return new Response('Method not allowed', { status: 405, headers: corsHeaders });
+    // Handle other methods
+    return new Response('Method not allowed', { 
+      status: 405, 
+      headers: corsHeaders 
+    });
   } catch (error) {
-    console.error('Children route error:', error);
-    return new Response(`Internal Server Error: ${error.message}`, { status: 500, headers: corsHeaders });
+    console.error('Error in handleChildrenRoutes:', error);
+    return new Response('Internal Server Error', { 
+      status: 500, 
+      headers: corsHeaders 
+    });
   }
 }
 
