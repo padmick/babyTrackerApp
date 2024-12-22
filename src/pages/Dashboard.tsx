@@ -17,10 +17,19 @@ export default function Dashboard() {
     return <div>Loading...</div>;
   }
 
+  const totalEntries = children?.reduce((sum, child) => 
+    sum + (child.stats?.feedingCount || 0) + (child.stats?.journalCount || 0), 0
+  ) || 0;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500">
+            {children?.length} children · {totalEntries} total entries
+          </p>
+        </div>
         <Link
           to="/child/new"
           className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700"
@@ -55,6 +64,15 @@ export default function Dashboard() {
                   <p className="text-sm text-gray-500">
                     {new Date(child.dateOfBirth).toLocaleDateString()}
                   </p>
+                  {child.stats && (
+                    <div className="mt-2 text-sm text-gray-500">
+                      <p>{child.stats.feedingCount} feedings</p>
+                      <p>{child.stats.journalCount} journal entries</p>
+                      {child.stats.lastFeeding && (
+                        <p>Last feeding: {new Date(child.stats.lastFeeding).toLocaleTimeString()}</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

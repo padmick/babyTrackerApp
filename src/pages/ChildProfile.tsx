@@ -1,22 +1,29 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Baby, Bottle, Moon, Book } from 'lucide-react';
+import { Baby, Milk, Moon, BookText } from 'lucide-react';
 import { fetchChild, fetchLatestEntries } from '../lib/api';
+import NewChild from './NewChild';
 
 export default function ChildProfile() {
   const { id } = useParams<{ id: string }>();
+  const isNewChild = id === 'new';
+
   const { data: child, isLoading: childLoading } = useQuery({
     queryKey: ['child', id],
     queryFn: () => fetchChild(id!),
-    enabled: !!id,
+    enabled: !!id && !isNewChild,
   });
 
   const { data: latestEntries } = useQuery({
     queryKey: ['latest-entries', id],
     queryFn: () => fetchLatestEntries(id!),
-    enabled: !!id,
+    enabled: !!id && !isNewChild,
   });
+
+  if (isNewChild) {
+    return <NewChild />;
+  }
 
   if (childLoading) {
     return <div>Loading...</div>;
@@ -52,7 +59,7 @@ export default function ChildProfile() {
           className="block p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
         >
           <div className="flex items-center space-x-3">
-            <Bottle className="h-6 w-6 text-indigo-600" />
+            <Milk className="h-6 w-6 text-indigo-600" />
             <div>
               <h2 className="text-lg font-medium text-gray-900">Feeding</h2>
               <p className="text-sm text-gray-500">
@@ -86,7 +93,7 @@ export default function ChildProfile() {
           className="block p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
         >
           <div className="flex items-center space-x-3">
-            <Book className="h-6 w-6 text-indigo-600" />
+            <BookText className="h-6 w-6 text-indigo-600" />
             <div>
               <h2 className="text-lg font-medium text-gray-900">Journal</h2>
               <p className="text-sm text-gray-500">

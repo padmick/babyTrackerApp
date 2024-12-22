@@ -1,6 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
-import { Bottle, Utensils, Heart } from 'lucide-react';
+import { Milk, Utensils, Heart } from 'lucide-react';
 import type { FeedingEntry } from '../../types';
 
 interface Props {
@@ -10,7 +10,7 @@ interface Props {
 
 const typeIcons = {
   breast: Heart,
-  bottle: Bottle,
+  bottle: Milk,
   solids: Utensils,
 };
 

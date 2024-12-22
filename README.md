@@ -43,7 +43,7 @@ A secure, real-time family tracking application built with React, Cloudflare Wor
    - Create an R2 bucket named "family-tracking-media"
    - Login to Wrangler:
      ```bash
-     wrangler login
+     npx wrangler login
      ```
 
 5. Environment Setup:
@@ -55,8 +55,9 @@ A secure, real-time family tracking application built with React, Cloudflare Wor
    npm run dev
    ```
 
-7. Deploy the worker:
+7. Deploy the worker and copy the secret:
    ```bash
+   npx wrangler secret put FIREBASE_API_KEY
    npm run deploy:worker
    ```
 

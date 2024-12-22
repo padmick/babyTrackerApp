@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchFeedingEntries } from '../../lib/api';
+import { fetchFeedingEntries } from '../../lib/api/feeding';
 import FeedingForm from '../../components/forms/FeedingForm';
 import FeedingList from './FeedingList';
 import FeedingStats from './FeedingStats';
